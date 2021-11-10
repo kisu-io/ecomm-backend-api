@@ -1,24 +1,28 @@
-const express = require("express");
-const path = require("path");
-const cookieParser = require("cookie-parser");
-const logger = require("morgan");
-const cors = require("cors");
-const indexRouter = require("./routes/index");
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const cors = require('cors');
+const indexRouter = require('./routes/index');
+const sendResponse = require('./helpers/sendResponse');
 
 const app = express();
 
-app.use(logger("dev"));
+app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
 
-app.use("/api", indexRouter);
+//Mongo Connection
+require('./mongoConfig');
+
+app.use('/api', indexRouter);
 
 /** when request match no ruote, create error */
 app.use((req, res, next) => {
-  const error = new Error("Wrong url");
+  const error = new Error('Wrong url');
   error.statusCode = 404;
   next(error);
 });
@@ -27,9 +31,9 @@ app.use((req, res, next) => {
  * this function will send error message */
 app.use((err, req, res, next) => {
   if (err.statusCode) {
-    return res.status(err.status).send(err.message);
+    return sendResponse(res, err.statusCode, false, null, true, 'Url not found');
   } else {
-    return res.status(500).send(err.message);
+    return sendResponse(res, 500, false, null, err.message, 'Internal Server Error');
   }
 });
 
