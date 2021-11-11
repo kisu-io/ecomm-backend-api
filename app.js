@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
@@ -20,7 +22,7 @@ require('./mongoConfig');
 
 app.use('/api', indexRouter);
 
-/** when request match no ruote, create error */
+/** when request match no route, create error */
 app.use((req, res, next) => {
   const error = new Error('Wrong url');
   error.statusCode = 404;

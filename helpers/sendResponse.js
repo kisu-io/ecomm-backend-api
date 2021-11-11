@@ -1,4 +1,4 @@
-const sendREsponse = (res, status, success, data, error, message) => {
+const sendResponse = (res, status, success, data, error, message) => {
   const response = {};
   if (success) response.success = success;
   if (data) response.data = data;
