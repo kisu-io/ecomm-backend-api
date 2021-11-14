@@ -1,29 +1,35 @@
-const express = required('express');
-const sendResponse = require('../helpers/sendResponse');
-
-const authenticationMiddleware = require('../middlewares/auth.middleware');
-const isAdmin = require('../middlewares/isAdmin');
-const Cart = require('../models/Cart');
-const User = require('../models/User');
+const express = require("express");
+const authenticationMiddleware = require("../middlewares/auth.middleware");
+const isAdmin = require("../middlewares/isAdmin.middleware");
+const {
+  createCart,
+  addProductToCart,
+  removeProductFromCart,
+  deleteCart,
+  getSingleCart,
+  getAll,
+  getAllOwn,
+  payCart,
+} = require("../controllers/cart.controller");
 const router = express.Router();
 
-const createCart = async (req, res, next) => {
-  const owner = req.currentUser._id;
-  const {productId} = req.params;
-  let {qty} = req.body;
-  let test;
-  qty = parseInt(qty);
-  let result;
-  const productChoice = {productId, qty};
-  const newCart = {owner, products: [productChoice]};
-  try {
-    result = await Cart.create(newCart);
-    test = await User.findById(result.owner.id);
-  } catch (error) {
-    return next(error);
-  }
-  return sendResponse(res, 200, true, {result, test}, false, 'Successfully create shopping cart');
-};
+router.post("/:productId", authenticationMiddleware, createCart);
 
-router.post('/:productId', authenticationMiddleware, createCart);
+router.put("/add-product-cart", authenticationMiddleware, addProductToCart);
+
+router.delete(
+  "/remove-product-cart/:cartId",
+  authenticationMiddleware,
+  removeProductFromCart
+);
+router.delete("/:cartId", authenticationMiddleware, deleteCart);
+
+router.get("/", authenticationMiddleware, getSingleCart);
+
+router.get("/", authenticationMiddleware, isAdmin, getAll);
+
+router.get("/me", authenticationMiddleware, getAllOwn);
+
+router.put("/payment/:cartId", authenticationMiddleware, payCart);
+
 module.exports = router;
