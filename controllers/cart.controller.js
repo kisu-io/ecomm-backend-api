@@ -2,6 +2,7 @@ const sendResponse = require("../helpers/sendResponse");
 const Cart = require("../models/Cart");
 const User = require("../models/User");
 const Product = require("../models/Product");
+const UserOrder = require("../models/UserOrder");
 const cartController = {};
 
 cartController.createCart = async (req, res, next) => {
@@ -185,12 +186,12 @@ cartController.payCart = async (req, res, next) => {
   const { cartId } = req.params;
   const { currentBalance, _id } = req.currentUser;
   try {
-    const found = await Cart.findById(cartId).populate("products.productId");
-    const total = found.products.reduce(
+    const product = await Cart.findById(cartId).populate("products.productId");
+    const total = product.products.reduce(
       (acc, cur) => acc + cur.qty * cur.productId.price,
       0
     );
-    if (found.status === "paid") throw new Error("Cart already paid");
+    if (product.status === "paid") throw new Error("Cart already paid");
     if (total > currentBalance)
       throw new Error("Not enough balance to make the purchase");
     const newBalance = currentBalance - total;
@@ -205,6 +206,12 @@ cartController.payCart = async (req, res, next) => {
       { new: true }
     );
     result.currentBalance = user.currentBalance;
+
+    const userOrdered = {
+      user,
+      product,
+    };
+    const ordered = await UserOrder.create(userOrdered);
   } catch (error) {
     return next(error);
   }

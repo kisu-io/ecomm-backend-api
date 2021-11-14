@@ -1,7 +1,7 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const authenticationMiddleware = require('../middlewares/auth.middleware');
-const isAdmin = require('../middlewares/isAdmin.middleware');
+const authenticationMiddleware = require("../middlewares/auth.middleware");
+const isAdmin = require("../middlewares/isAdmin.middleware");
 
 const {
   getAll,
@@ -9,16 +9,16 @@ const {
   updateById,
   deleteById,
   loginWithEmailPassword,
-} = require('../controllers/user.controller');
+} = require("../controllers/user.controller");
 
-router.get('/', getAll);
+router.get("/", getAll);
 
-router.post('/', createByEmailPassword);
+router.post("/", createByEmailPassword);
 
-router.post('/login', loginWithEmailPassword);
+router.post("/login", loginWithEmailPassword);
 
-router.put('/update-me', authenticationMiddleware, updateById);
+router.put("/update-me", authenticationMiddleware, updateById);
 
-router.delete('/delete-me', authenticationMiddleware, deleteById);
+router.delete("/delete-me", authenticationMiddleware, deleteById);
 
 module.exports = router;
